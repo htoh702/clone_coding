@@ -23,10 +23,13 @@ import user.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('main', instagram_clone.views.Main.as_view(), name='main'),
+    path('main/', instagram_clone.views.Main.as_view(), name='main'),
     path('content/upload', instagram_clone.views.UploadFeed.as_view()),
-    path('user/login', user.views.Login.as_view(), name='login'),
-    path('user/join', user.views.Join.as_view(), name='join'),
+    path('', user.views.Login.as_view(), name='login'),
+    path('join', user.views.Join.as_view(), name='join'),
+    path('logout', user.views.LogOut.as_view(), name='logout'),
+    path('profile', instagram_clone.views.Profile.as_view()),
+    path('profile/upload', user.views.UploadProfile.as_view()),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    # media 파일을 조회하기 위한 코드

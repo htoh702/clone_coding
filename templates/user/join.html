@@ -13,7 +13,6 @@
     <!-- jquery 사용하기 위해 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-
     <title>instagram login_clone</title>
 </head>
 <style>
@@ -85,7 +84,7 @@
         console.log('이멜 :' + email + ', 이름 :'  + name + ', 사용자이름 :'  +  user_id + ', 비밀번호 :'  +  password);
 
         $.ajax({
-            url: "/user/join",
+            url: "/join",
             data: {
                 email: email,
                 password: password,

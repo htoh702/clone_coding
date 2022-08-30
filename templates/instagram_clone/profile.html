@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
           rel="stylesheet">
 
+    <!-- Google symbol -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"/>
+
     <!-- jquery 사용하기 위해 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
@@ -272,7 +276,7 @@
                 </a>
 
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/profile">profile</a></li>
+                    <li><a class="dropdown-item" href="#">profile</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
@@ -283,146 +287,28 @@
     </div>
 </nav>
 
-<!-- 바디 영역 -->
 <div class="main_body">
-    <div class="left_body">
-        {% for feed in feed %}
-            <div class="border feed_box">
-                <div class="feed_name">
-                    <div class="profile_box">
-                        <img class="profile_img" src="{{ feed.profile_image }}">
-                    </div>
-                    <span class="feed_name_txt"> {{ feed.user_id }}</span>
-                </div>
-                <img class="feed_img" src="{% get_media_prefix %}{{ feed.image }}">
-
-                <div class="feed_icon">
-                    <div>
-                            <span class="material-icons-outlined">
-                                favorite_border
-                            </span>
-                        <span class="material-icons-outlined">
-                                mode_comment
-                            </span>
-                        <span class="material-icons-outlined">
-                                send
-                            </span>
-                    </div>
-                    <div>
-                            <span class="material-icons-outlined">
-                                turned_in_not
-                            </span>
-                    </div>
-                </div>
-                <div class="feed_like">
-                    <p class="feed_txt"><b>좋아요 {{ feed.like_count }}개</b></p>
-                </div>
-                <div class="feed_content">
-                    <p class="feed_txt"><b> {{ feed.user_id }} </b> {{ feed.content }}</p>
-                </div>
-                <div class="feed_reply">
-                    <span class="feed_txt"> <b> mychew </b> 댓글은 아직 모델을 안만들어서 </span>
-                    <span class="feed_txt"> <b> cho </b> 항상 이 두개가 나옵니다 ㅋㅋ </span>
-                </div>
-            </div>
-        {% endfor %}
+    <div style="padding: 20px 60px">
+        <img class="big_profile_box" style="width: 175px; height: 175px"
+             src="{% get_media_prefix %}{{ user.profile_image }}">
     </div>
-    <div class="right_body">
-        <div class="feed_name" style="justify-content: space-between">
-            <div style="display: flex; align-items: center; ">
-                <div class="big_profile_box">
-                    <img class="profile_img"
-                         src="https://post-phinf.pstatic.net/MjAxODEwMTlfMjQ1/MDAxNTM5OTM0NzI1OTU1.-UhrGyJfBkOlMbhZP7nwiG9T4r-IHMz0MCI8wJfn_X8g.yctlw2oEeT7DVyFaYEIKqmb_QG2IAKP25tn7mqcWy-Ug.JPEG/GettyImages-a7338650.jpg?type=w1200">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> {{ user.user_id }} </span>
-                    <span class="name_content_txt"> {{ user.name }} </span>
-                </div>
+    <div style="text-align: left">
+        <div style="display: flex; flex-direction: row; margin: 20px 0">
+            <div style="font-size: 26px; margin-right: 40px">
+                {{ user.user_id }}
             </div>
-
-            <a class="link_txt">
-                전환
-            </a>
+            <button id="button_profile_upload" style="margin-right: 40px">
+                프로필 편집
+            </button>
+            <input type="file" id="input_fileupload" onchange="" style="display:none;"/>
+            <span class="material-symbols-outlined" style="margin-right: 40px">settings</span>
         </div>
 
-        <div class="recommend_box">
-            <span style="color: gray"> 회원님을 위한 추천</span>
-            <span style="font-size: 12px"> 모두 보기 </span>
+        <div style="margin: 20px 0">
+            게시물 팔로워
         </div>
         <div>
-            <div class="feed_name" style="justify-content: space-between">
-                <div class="profile_box">
-                    <img class="profile_img"
-                         src="https://i.pinimg.com/736x/93/a6/8b/93a68b57a54e4bdc73d43d1d049b94b3.jpg">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> dation3388 </span>
-                    <span class="name_content_txt"> Jinstargram 신규가입</span>
-                </div>
-                <a class="link_txt">
-                    팔로우
-                </a>
-            </div>
-            <div class="feed_name" style="justify-content: space-between">
-                <div class="profile_box">
-                    <img class="profile_img"
-                         src="http://file3.instiz.net/data/cached_img/upload/2021/01/27/18/2ce2f41f7e9f09c0acc77faac7452dbf.jpg">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> gaoudi </span>
-                    <span class="name_content_txt"> IU 외 5명이 팔로우</span>
-
-                </div>
-                <a class="link_txt">
-                    팔로우
-                </a>
-            </div>
-            <div class="feed_name" style="justify-content: space-between">
-                <div class="profile_box">
-                    <img class="profile_img"
-                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTiCVWdogd6Ocsm08kL8ph4sb1MN0AYEiSUQ&usqp=CAU">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> CAU </span>
-                    <span class="name_content_txt"> IU 외 5명이 팔로우</span>
-                </div>
-                <a class="link_txt">
-                    팔로우
-                </a>
-            </div>
-            <div class="feed_name" style="justify-content: space-between">
-                <div class="profile_box">
-                    <img class="profile_img"
-                         src="https://pbs.twimg.com/media/EhzH0_DU4AEZ9yr.jpg">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> 123456789 </span>
-                    <span class="name_content_txt"> 그냥 추천해봄 </span>
-                </div>
-                <a class="link_txt">
-                    팔로우
-                </a>
-            </div>
-            <div class="feed_name" style="justify-content: space-between">
-                <div class="profile_box">
-                    <img class="profile_img"
-                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHPNYM5RQgA2F7BtpBQ-OrNFKDXVDUpypRuw&usqp=CAU">
-                </div>
-                <div class="name_content">
-                    <span class="feed_name_txt"> instiz </span>
-                    <span class="name_content_txt"> 애도 유명해 </span>
-                </div>
-                <a class="link_txt">
-                    팔로우
-                </a>
-            </div>
-        </div>
-        <div class="comment_box">
-            <span> 인스타그램 클론 코딩 </span>
-            <span> https://cholol.tistory.com </span>
-            <br>
-            <span> @2021 Jin.99 </span>
-
+            <b>{{ user.name }}</b>
         </div>
     </div>
 </div>
@@ -483,9 +369,11 @@
     </div>
 </div>
 
+
 <!-- Optional JavaScript; choose one of the two! -->
 
 <script>
+
     let files
 
     const modal = document.getElementById("modal_add_feed");    // modal 상수 생성
@@ -633,6 +521,40 @@
             }
         })
     };
+
+    $('#button_profile_upload').click(function () {
+        $('#input_fileupload').click();
+    });
+
+    function profile_upload() {
+        let file = $('#input_fileupload')[0].files[0];
+
+        let email = "{{ user.email }}";
+
+        let fd = new FormData();
+
+        fd.append('file', file);
+        fd.append('email', email);
+
+        $.ajax({
+            url: "/profile/upload",
+            data: fd,
+            method: "POST",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log("성공");
+            },
+            error: function (request, status, error) {
+                console.log("에러");
+            },
+            complete: function () {
+                console.log("완료");
+                location.replace("/profile");
+            }
+        });
+
+    }
 </script>
 
 <!-- Option 1: Bootstrap Bundle with Popper -->

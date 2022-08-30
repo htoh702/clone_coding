@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render
 from rest_framework.views import APIView
 from .models import User
@@ -52,5 +54,53 @@ class Join(APIView):
         User.objects.create(password=make_password(password), email=email, user_id=user_id, name=name)  # 계정을 만들 때 비밀번호는 암호화되어 저장이 된다
 
         return Response(status=200, data=dict(message='회원가입에 성공했습니다. 로그인 해주세요'))
+
+class LogOut(APIView):
+    def get(self, request):
+        request.session.flush()
+        return render(request, 'user/login.html')
+
+    def post(self, request):
+        email = request.data.get('email', None)
+        password = request.data.get('password', None)
+        if email is None:
+            return Response(status=500, data=dict(message='이메일을 입력해주세요'))
+
+        if password is None:
+            return Response(status=500, data=dict(message='비밀번호를 입력해주세요'))
+
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            return Response(status=500, data=dict(message='입력정보가 잘못되었습니다'))
+
+        if check_password(password, user.password) is False:
+            return Response(status=500, data=dict(message='입력정보가 잘못되었습니다'))
+
+        request.session['loginCheck'] = True
+        request.session['email'] = user.email
+
+        return Response(status=200, data=dict(message='로그인에 성공했습니다'))
+
+class UploadProfile(APIView):
+    def post(self, request):
+        file = request.FILES['file']
+        email = request.data.get('email')
+
+        uuid_name = uuid4().hex
+        save_path = os.path.join(MEDIA_ROOT, uuid_name)
+
+        with open(save_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        profile_image = uuid_name
+
+        user = User.objects.filter(email=email).first()
+
+        user.profile_image = profile_image
+        user.save()
+
+        return Response(status=200)     # 성공을 의미하는 200
 
 # Create your views here.
