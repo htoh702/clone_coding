@@ -272,7 +272,7 @@
                 <a href="#" role="button" data-bs-toggle="dropdown"
                    aria-expanded="false">
                     <img class="big_profile_box" style="width: 25px; height: 25px"
-                         src="https://post-phinf.pstatic.net/MjAxODEwMTlfMjQ1/MDAxNTM5OTM0NzI1OTU1.-UhrGyJfBkOlMbhZP7nwiG9T4r-IHMz0MCI8wJfn_X8g.yctlw2oEeT7DVyFaYEIKqmb_QG2IAKP25tn7mqcWy-Ug.JPEG/GettyImages-a7338650.jpg?type=w1200">
+                         src="{% get_media_prefix %}{{ user.profile_image }}">
                 </a>
 
                 <ul class="dropdown-menu">
@@ -300,7 +300,7 @@
             <button id="button_profile_upload" style="margin-right: 40px">
                 프로필 편집
             </button>
-            <input type="file" id="input_fileupload" onchange="" style="display:none;"/>
+            <input type="file" id="input_fileupload" onchange="profile_upload();" style="display: none" />
             <span class="material-symbols-outlined" style="margin-right: 40px">settings</span>
         </div>
 
@@ -471,10 +471,10 @@
     };
 
     $('#button_write_feed').on('click', () => {   // 공유하기 버튼이 눌려졌을 때 발생
-        const image = $('#input_image').css("background-image").replace(/^url\(['"](.+)['"]\)/, '$1');
-        const content = $('#input_content').val();
-        const profile_image = $('#input_profile_image').attr('src');
-        const user_id = $('#input_user_id').text();
+        let image = $('#input_image').css("background-image").replace(/^url\(['"](.+)['"]\)/, '$1');
+        let content = $('#input_content').val();
+        let profile_image = $('#input_profile_image').attr('src');
+        let user_id = $('#input_user_id').text();
 
         const file = files[0];
 
@@ -522,23 +522,24 @@
         })
     };
 
-    $('#button_profile_upload').click(function () {
+    $('#button_profile_upload').click(function (){
         $('#input_fileupload').click();
+
     });
 
-    function profile_upload() {
+    function profile_upload(){
         let file = $('#input_fileupload')[0].files[0];
 
         let email = "{{ user.email }}";
 
-        let fd = new FormData();
+        let fd1 = new FormData();
 
-        fd.append('file', file);
-        fd.append('email', email);
+        fd1.append('file', file);
+        fd1.append('email', email);
 
         $.ajax({
             url: "/profile/upload",
-            data: fd,
+            data: fd1,
             method: "POST",
             processData: false,
             contentType: false,
@@ -553,8 +554,8 @@
                 location.replace("/profile");
             }
         });
-
     }
+
 </script>
 
 <!-- Option 1: Bootstrap Bundle with Popper -->

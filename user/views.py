@@ -82,8 +82,11 @@ class LogOut(APIView):
 
         return Response(status=200, data=dict(message='로그인에 성공했습니다'))
 
+
 class UploadProfile(APIView):
     def post(self, request):
+
+        # 일단 파일 불러와
         file = request.FILES['file']
         email = request.data.get('email')
 
