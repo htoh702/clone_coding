@@ -263,7 +263,7 @@
              src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png">
         <input class="form-control" style="width: 200px" type="search" placeholder="Search" aria-label="Search">
         <div style="display: flex">
-            <span class="material-icons">home</span>
+            <a href="/main" style="color: black"><span class="material-icons" style="padding-right: 10px">home</span></a>
             <span class="material-icons">send</span>
             <span id="add_feed" class="material-icons-outlined">add_box</span>
             <span class="material-icons-outlined">explore</span>
@@ -276,7 +276,7 @@
                 </a>
 
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">profile</a></li>
+                    <li><a class="dropdown-item" href="/profile">profile</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
@@ -385,8 +385,17 @@
         console.log(window.pageYOffset + " 위치");               // 로그 찍기
     });
 
+    // 모달 닫기 코드
+    const buttonCloseModal = document.getElementById("close_modal");
+    buttonCloseModal.addEventListener("click", e => {
+        modal.style.display = "none";
+        document.body.style.overflowY = "visible";
+    });
+
 
     <!-- jquery 부분 -->
+
+
 
     $('.modal_image_upload')    // class에 대하여 작업할 때는 앞에 '.'을 추가하고 id에 대하여 작업할 때는 앞에 '#'을 추가한다
         .on("dragover", dragOver)   // 드래그해서 올렸을 때
