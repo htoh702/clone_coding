@@ -313,6 +313,14 @@
     </div>
 </div>
 
+<div style="border-top:solid 2px rgba(50,50,50,0.3);width:100%">
+    <div style="display:flex; flex-direction: row;justify-content: center">
+        <div id="button_feed_list" style="cursor: pointer;margin: 0 30px;display: flex; flex-direction: row;align-items: center"><span class="material-icons-outlined">grid_on</span>내 게시물</div>
+        <div id="button_feed_like_list" style="cursor: pointer;margin: 0 30px;display: flex; flex-direction: row;align-items: center"><span class="material-icons-outlined">favorite_border</span>좋아요</div>
+        <div id="button_feed_bookmark_list" style="cursor: pointer;margin: 0 30px;display: flex; flex-direction: row;align-items: center"><span class="material-icons-outlined">bookmark_border</span>북마크</div>
+    </div>
+</div>
+
 
 <div id="modal_add_feed" class="modal modal_overlay">
     <div class="modal_window">
@@ -374,162 +382,144 @@
 
 <script>
 
-    let files
+    $(".upload_reply").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem('feed_id').value;
+        let reply_id = 'reply_' + feed_id;
+        let reply_content = $('#' + reply_id).val();
 
-    const modal = document.getElementById("modal_add_feed");    // modal 상수 생성
-    const buttonAddFeed = document.getElementById("add_feed");  // buttonAddFeed 상수 생성
-    buttonAddFeed.addEventListener("click", e => {              // buttonAddFeed에 이밴트 추가(click시 modal의 css가 flex로 바뀜)
-        modal.style.top = window.pageYOffset + 'px';            // top을 이용해 시작 y위치를 바꿔줌
-        modal.style.display = "flex";
-        document.body.style.overflowY = "hidden";               // 스크롤 없애기
-        console.log(window.pageYOffset + " 위치");               // 로그 찍기
-    });
+        if (reply_content.length <= 0) {
+            alert("댓글을 입력하세요");
+            return 0;
+        }
 
-    // 모달 닫기 코드
-    const buttonCloseModal = document.getElementById("close_modal");
-    buttonCloseModal.addEventListener("click", e => {
-        modal.style.display = "none";
-        document.body.style.overflowY = "visible";
-    });
-
-
-    <!-- jquery 부분 -->
-
-
-
-    $('.modal_image_upload')    // class에 대하여 작업할 때는 앞에 '.'을 추가하고 id에 대하여 작업할 때는 앞에 '#'을 추가한다
-        .on("dragover", dragOver)   // 드래그해서 올렸을 때
-        .on("dragleave", dragOver)  // 드래그해서 밖으로 옮겼을 때
-        .on("drop", uploadFiles);   // 드래그를 놓았을 때
-    // .on 은 함수 안에 아무 인자도 없으면 event.data를 전달한다
-
-    $('.close_modal').on("click", () => {
-        closeModal();
-    });
-
-    $('#move_home').on("click", () => {
-        $('#modal_add_feed_content').css({
-            top: window.pageYOffset + 'px',
-            display: 'flex'
-        });
-        $(document.body).css({
-            overflowY: "hidden"
+        $.ajax({
+            url: "/content/reply",
+            data: {
+                feed_id: feed_id,
+                reply_content: reply_content
+            },
+            method: "POST",
+            success: function (data) {
+                console.log("success");
+                alert("success");
+                $("#reply_list_" + feed_id).append("<div class='feed_reply'> <span class='feed_txt'> <b> {{ user.user_id }} </b> " + reply_content + "</span> </div>")
+            },
+            error: function (request, status, error) {
+                console.log("error");
+            },
+            complete: function () {
+                console.log("complete");
+                $('#' + reply_id).val('');
+            }
         });
     });
 
-    function closeModal() {
-        $('.modal').css({
+    $(".close_modal").click(function () {
+        $('#modal_add_feed').css({
             display: 'none'
         });
-        $(document.body).css({
-            overflowY: 'visible'
+        $('#modal_add_feed_content').css({
+            display: 'none'
         });
-    };
+    });
+    let files;
 
-    function dragOver(e) {
-        e.stopPropagation();
-        e.preventDefault();
+    $('#add_feed').click(function () {
+        $('#modal_add_feed').css({
+            display: 'flex'
+        });
+        $('#modal_add_feed_content').css({
+            display: 'none'
+        });
+    });
 
+    $('#button_write_feed').click(function () {
+        alert("공유하기");
 
-        if (e.type == "dragover") { // 드래그해서 올렸을 때 까만 화면을 나오게 한다
-            $(e.target).css({   // e.target = modal_image_upload
-                "background-color": "black",
-                "outline-offset": "-20px"
-            });
-        } else {
-            $(e.target).css({
-                "background-color": "white",
-                "outline-offset": "-10px"
-            });
-        }
-    }
-
-
-    function uploadFiles(e) {
-        e.stopPropagation();    // html 태들의 전파에 관한 이슈
-        e.preventDefault();     // 모달 창이 띄어졌을 때 그 밑에 있는 태그들이 눌려도 오류가 나지 않게 방지해 준다
-        console.log(e.dataTransfer)
-        console.log(e.originalEvent.dataTransfer)
-
-        e.dataTransfer = e.originalEvent.dataTransfer;  // files에 옮겨진 파일을 저장한다
-        files = e.dataTransfer.files;
-
-        if (files.length > 1) { // 업로드 양 조절
-            alert('하나만 올려라.');
-            return;
-        }
-
-        if (files[0].type.match(/image.*/)) {
-            $('#modal_add_feed_content').css({
-                display: 'flex'
-            });
-            $('.modal_image_upload_content').css({
-                "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
-                "outline": "none",
-                "background-size": "contain",
-                "background-repeat": "no-repeat",
-                "background-position": "center"
-            });
-            $('#modal_add_feed').css({
-                display: 'none'
-            })
-        } else {
-            alert('이미지가 아닙니다.');
-            return;
-        }
-    };
-
-    $('#button_write_feed').on('click', () => {   // 공유하기 버튼이 눌려졌을 때 발생
-        let image = $('#input_image').css("background-image").replace(/^url\(['"](.+)['"]\)/, '$1');
+        let file = files[0];
+        let image = files[0].name;
         let content = $('#input_content').val();
-        let profile_image = $('#input_profile_image').attr('src');
-        let user_id = $('#input_user_id').text();
 
-        const file = files[0];
 
         let fd = new FormData();
 
         fd.append('file', file);
         fd.append('image', image);
         fd.append('content', content);
-        fd.append('profile_image', profile_image);
-        fd.append('user_id', user_id);
 
-        if (image.length <= 0) {
-            alert("이미지가 비어있습니다.");
-        } else if (content.length <= 0) {
-            alert("설명을 입력하세요");
-        } else if (profile_image.length <= 0) {
-            alert("프로필 이미지가 비어있습니다.");
-        } else if (user_id.length <= 0) {
-            alert("사용자 id가 없습니다.");
-        } else {
-            writeFeed(fd);
-            console.log(files[0]);
-        }
-    });
-
-    function writeFeed(fd) {    // ajax를 이용하여 api를 호출 데이터를 서버로 전송(json파일 형태로 전송)
-        $.ajax({                // formdata  제작
-            url: "/content/upload", //  ajax(asynchronous java script and xml)은 비동기라 응답을 즉각적으로 반응해야한다
+        $.ajax({
+            url: "/content/upload",
             data: fd,
             method: "POST",
             processData: false,
             contentType: false,
-            success: function (data) {  // 응답이 성공일 때
-                console.log("성공");
+            success: function (data) {
+                console.log("success");
             },
-            error: function (request, status, error) {  // 응답이 실패일 때
-                console.log("에러");
-                console.log($`{request}`);
+            error: function (request, status, error) {
+                console.log("error");
             },
-            complete: function () {  // success or error가 실행이 끝난 뒤에 실행
-                console.log("무조건실행");
-                closeModal();
-                location.reload();  // 새로고침
+            complete: function () {
+                console.log("complete");
+                location.replace("/main");
             }
-        })
-    };
+        });
+    });
+
+    $('.modal_image_upload')
+        .on("dragover", dragOver)
+        .on("dragleave", dragOver)
+        .on("drop", uploadFiles);
+
+    function dragOver(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (e.type == "dragover") {
+            $(e.target).css({
+                "background-color": "black",
+                "outline-offset": "-20px"
+            });
+        } else {
+            $(e.target).css({
+                "background-color": "white",
+                "outline_offset": "-10px"
+            });
+        }
+    }
+
+    function uploadFiles(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        e.dataTransfer = e.originalEvent.dataTransfer;
+        files = e.target.files || e.dataTransfer.files;
+        console.log("파일이 올라갔습니다." + files[0].name);
+        if (files.length > 1) {
+            alert('하나만 올리세요');
+            return;
+        }
+        if (files[0].type.match(/image.*/)) {
+
+            $('#modal_add_feed').css({
+                display: 'none'
+            });
+            $('#modal_add_feed_content').css({
+                display: 'flex'
+            });
+
+            $('.modal_image_upload_content').css({
+                "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+                "outline": "none",
+                "background-size": "100%",
+                "background-repeat": "no-repeat",
+                "background-position": "center"
+            });
+        } else {
+            alert('이미지가 아닙니다');
+            return;
+        }
+    }
 
     $('#button_profile_upload').click(function (){
         $('#input_fileupload').click();

@@ -259,9 +259,10 @@
              src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png">
         <input class="form-control" style="width: 200px" type="search" placeholder="Search" aria-label="Search">
         <div style="display: flex">
-            <a href="/main" style="color: black"><span class="material-icons" style="padding-right: 10px">home</span></a>
+            <a href="/main" style="color: black"><span class="material-icons"
+                                                       style="padding-right: 10px">home</span></a>
             <span class="material-icons">send</span>
-            <span id="add_feed" class="material-icons-outlined">add_box</span>
+            <span id="add_feed" class="material-icons-outlined" style="cursor:pointer">add_box</span>
             <span class="material-icons-outlined">explore</span>
             <span class="material-icons-outlined">favorite_border</span>
             <div class="dropdown">
@@ -290,17 +291,20 @@
             <div class="border feed_box">
                 <div class="feed_name">
                     <div class="profile_box">
-                        <img class="profile_img" src="{% get_media_prefix %}{{ user.profile_image }}">
+                        <img class="profile_img" src="{% get_media_prefix %}{{ feed.profile_image }}">
                     </div>
-                    <span class="feed_name_txt"> {{ user.user_id }}</span>
+                    <span class="feed_name_txt"> {{ feed.user_id }}</span>
                 </div>
                 <img class="feed_img" src="{% get_media_prefix %}{{ feed.image }}">
 
                 <div class="feed_icon">
-                    <div>
-                            <span class="material-icons-outlined">
-                                favorite_border
-                            </span>
+                    <div style="display: flex">
+                        <div>
+                        <span id="favorite_{{ feed.id }}" feed_id="{{ feed.id }}"
+                              class="favorite material-icons-outlined"
+                              style="color: red;cursor: pointer">{% if feed.is_liked %}
+                            favorite{% else %}favorite_border{% endif %}</span>
+                        </div>
                         <span class="material-icons-outlined">
                                 mode_comment
                             </span>
@@ -309,8 +313,10 @@
                             </span>
                     </div>
                     <div>
-                            <span class="material-icons-outlined">
-                                turned_in_not
+                            <span id="bookmark_{{ feed.id }}" feed_id="{{ feed.id }}"
+                                  class="bookmark material-icons-outlined"
+                                  style="cursor: pointer">
+                                {% if feed.is_marked %}bookmark{% else %}bookmark_border{% endif %}
                             </span>
                     </div>
                 </div>
@@ -318,11 +324,23 @@
                     <p class="feed_txt"><b>좋아요 {{ feed.like_count }}개</b></p>
                 </div>
                 <div class="feed_content">
-                    <p class="feed_txt"><b> {{ feed.user_id }} </b> {{ feed.content }}</p>
+                    <p class="feed_txt"><b> {{ feed.feed_id }} </b> {{ feed.content }}</p>
                 </div>
-                <div class="feed_reply">
-                    <span class="feed_txt"> <b> mychew </b> 댓글은 아직 모델을 안만들어서 </span>
-                    <span class="feed_txt"> <b> cho </b> 항상 이 두개가 나옵니다 ㅋㅋ </span>
+                <div id="reply_list_{{ feed.id }}">
+                    {% for reply in feed.reply_list %}
+                        <div class="feed_reply">
+                            <span class="feed_txt"> <b> {{ reply.user_id }} </b> {{ reply.reply_content }} </span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="display:flex;flex-direction: row;align-items: center; border-top: solid 1px gray ">
+                    <input id="reply_{{ feed.id }}" type="text" class="form-control"
+                           style="box-shadow: none; border: none; outline: none"
+                           placeholder="댓글 달기..">
+                    <div feed_id="{{ feed.id }}" class="upload_reply"
+                         style="width: 50px;color: cornflowerblue; font-weight: bold">
+                        게시
+                    </div>
                 </div>
             </div>
         {% endfor %}
@@ -357,7 +375,7 @@
                 </div>
                 <div class="name_content">
                     <span class="feed_name_txt"> dation3388 </span>
-                    <span class="name_content_txt"> Jinstargram 신규가입</span>
+                    <span class="name_content_txt"> 신규가입</span>
                 </div>
                 <a class="link_txt">
                     팔로우
@@ -486,162 +504,205 @@
 <!-- Optional JavaScript; choose one of the two! -->
 
 <script>
-    let files
 
-    const modal = document.getElementById("modal_add_feed");    // modal 상수 생성
-    const buttonAddFeed = document.getElementById("add_feed");  // buttonAddFeed 상수 생성
-    buttonAddFeed.addEventListener("click", e => {              // buttonAddFeed에 이밴트 추가(click시 modal의 css가 flex로 바뀜)
-        modal.style.top = window.pageYOffset + 'px';            // top을 이용해 시작 y위치를 바꿔줌
-        modal.style.display = "flex";
-        document.body.style.overflowY = "hidden";               // 스크롤 없애기
-        console.log(window.pageYOffset + " 위치");               // 로그 찍기
-    });
+    $(".bookmark").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem('feed_id').value;
+        let bookmark_id = event.target.id;
+        let bookmark_text = $.trim($('#' + bookmark_id).html());
+        if (bookmark_text == 'bookmark') {
+            $('#' + bookmark_id).html('bookmark_border');
+        } else {
+            $('#' + bookmark_id).html('bookmark');
+        }
 
-    // 모달 닫기 코드
-    const buttonCloseModal = document.getElementById("close_modal");
-    buttonCloseModal.addEventListener("click", e => {
-        modal.style.display = "none";
-        document.body.style.overflowY = "visible";
-    });
-
-
-    <!-- jquery 부분 -->
-
-
-
-    $('.modal_image_upload')    // class에 대하여 작업할 때는 앞에 '.'을 추가하고 id에 대하여 작업할 때는 앞에 '#'을 추가한다
-        .on("dragover", dragOver)   // 드래그해서 올렸을 때
-        .on("dragleave", dragOver)  // 드래그해서 밖으로 옮겼을 때
-        .on("drop", uploadFiles);   // 드래그를 놓았을 때
-    // .on 은 함수 안에 아무 인자도 없으면 event.data를 전달한다
-
-    $('.close_modal').on("click", () => {
-        closeModal();
-    });
-
-    $('#move_home').on("click", () => {
-        $('#modal_add_feed_content').css({
-            top: window.pageYOffset + 'px',
-            display: 'flex'
-        });
-        $(document.body).css({
-            overflowY: "hidden"
+        $.ajax({
+            url: "/content/bookmark",
+            data: {
+                feed_id: feed_id,
+                bookmark_text: bookmark_text
+            },
+            method: "POST",
+            success: function (data) {
+                console.log("success");
+            },
+            error: function (request, status, error) {
+                console.log("error");
+            },
+            complete: function () {
+                console.log("complete");
+            }
         });
     });
 
-    function closeModal() {
-        $('.modal').css({
+    $(".favorite").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem('feed_id').value;
+        let favorite_id = event.target.id;
+        console.log(favorite_id);
+        let favorite_text = $.trim($('#' + favorite_id).html());    // trim : 좌우의 공백을 삭제시켜준다
+        console.log(favorite_text);
+        if (favorite_text == 'favorite') {
+            $('#' + favorite_id).html('favorite_border');
+        } else {
+            $('#' + favorite_id).html('favorite');
+        }
+
+        $.ajax({
+            url: "/content/like",
+            data: {
+                feed_id: feed_id,
+                favorite_text: favorite_text,
+            },
+            method: "POST",
+            success: function (data) {
+                console.log("success");
+            },
+            error: function (request, status, error) {
+                console.log("error");
+            },
+            complete: function () {
+                console.log("complete");
+            }
+        });
+    });
+
+    $(".upload_reply").click(function (event) {
+        let feed_id = event.target.attributes.getNamedItem('feed_id').value;
+        let reply_id = 'reply_' + feed_id;
+        let reply_content = $('#' + reply_id).val();
+
+        if (reply_content.length <= 0) {
+            alert("댓글을 입력하세요");
+            return 0;
+        }
+
+        $.ajax({
+            url: "/content/reply",
+            data: {
+                feed_id: feed_id,
+                reply_content: reply_content
+            },
+            method: "POST",
+            success: function (data) {
+                console.log("success");
+                alert("success");
+                $("#reply_list_" + feed_id).append("<div class='feed_reply'> <span class='feed_txt'> <b> {{ user.user_id }} </b> " + reply_content + "</span> </div>")
+            },
+            error: function (request, status, error) {
+                console.log("error");
+            },
+            complete: function () {
+                console.log("complete");
+                $('#' + reply_id).val('');
+            }
+        });
+    });
+
+    $(".close_modal").click(function () {
+        $('#modal_add_feed').css({
             display: 'none'
         });
-        $(document.body).css({
-            overflowY: 'visible'
+        $('#modal_add_feed_content').css({
+            display: 'none'
         });
-    };
+    });
+    let files;
 
-    function dragOver(e) {
-        e.stopPropagation();
-        e.preventDefault();
+    $('#add_feed').click(function () {
+        $('#modal_add_feed').css({
+            display: 'flex'
+        });
+        $('#modal_add_feed_content').css({
+            display: 'none'
+        });
+    });
 
+    $('#button_write_feed').click(function () {
+        alert("공유하기");
 
-        if (e.type == "dragover") { // 드래그해서 올렸을 때 까만 화면을 나오게 한다
-            $(e.target).css({   // e.target = modal_image_upload
-                "background-color": "black",
-                "outline-offset": "-20px"
-            });
-        } else {
-            $(e.target).css({
-                "background-color": "white",
-                "outline-offset": "-10px"
-            });
-        }
-    }
-
-
-    function uploadFiles(e) {
-        e.stopPropagation();    // html 태들의 전파에 관한 이슈
-        e.preventDefault();     // 모달 창이 띄어졌을 때 그 밑에 있는 태그들이 눌려도 오류가 나지 않게 방지해 준다
-        console.log(e.dataTransfer)
-        console.log(e.originalEvent.dataTransfer)
-
-        e.dataTransfer = e.originalEvent.dataTransfer;  // files에 옮겨진 파일을 저장한다
-        files = e.dataTransfer.files;
-
-        if (files.length > 1) { // 업로드 양 조절
-            alert('하나만 올려라.');
-            return;
-        }
-
-        if (files[0].type.match(/image.*/)) {
-            $('#modal_add_feed_content').css({
-                display: 'flex'
-            });
-            $('.modal_image_upload_content').css({
-                "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
-                "outline": "none",
-                "background-size": "contain",
-                "background-repeat": "no-repeat",
-                "background-position": "center"
-            });
-            $('#modal_add_feed').css({
-                display: 'none'
-            })
-        } else {
-            alert('이미지가 아닙니다.');
-            return;
-        }
-    };
-
-    $('#button_write_feed').on('click', () => {   // 공유하기 버튼이 눌려졌을 때 발생
-        let image = $('#input_image').css("background-image").replace(/^url\(['"](.+)['"]\)/, '$1');
+        let file = files[0];
+        let image = files[0].name;
         let content = $('#input_content').val();
-        let profile_image = $('#input_profile_image').attr('src');
-        let user_id = $('#input_user_id').text();
 
-        const file = files[0];
 
         let fd = new FormData();
 
         fd.append('file', file);
         fd.append('image', image);
         fd.append('content', content);
-        fd.append('profile_image', profile_image);
-        fd.append('user_id', user_id);
 
-        if (image.length <= 0) {
-            alert("이미지가 비어있습니다.");
-        } else if (content.length <= 0) {
-            alert("설명을 입력하세요");
-        } else if (profile_image.length <= 0) {
-            alert("프로필 이미지가 비어있습니다.");
-        } else if (user_id.length <= 0) {
-            alert("사용자 id가 없습니다.");
-        } else {
-            writeFeed(fd);
-            console.log(files[0]);
-        }
-    });
-
-    function writeFeed(fd) {    // ajax를 이용하여 api를 호출 데이터를 서버로 전송(json파일 형태로 전송)
-        $.ajax({                // formdata  제작
-            url: "/content/upload", //  ajax(asynchronous java script and xml)은 비동기라 응답을 즉각적으로 반응해야한다
+        $.ajax({
+            url: "/content/upload",
             data: fd,
             method: "POST",
             processData: false,
             contentType: false,
-            success: function (data) {  // 응답이 성공일 때
-                console.log("성공");
+            success: function (data) {
+                console.log("success");
             },
-            error: function (request, status, error) {  // 응답이 실패일 때
-                console.log("에러");
-                console.log($`{request}`);
+            error: function (request, status, error) {
+                console.log("error");
             },
-            complete: function () {  // success or error가 실행이 끝난 뒤에 실행
-                console.log("무조건실행");
-                closeModal();
-                location.reload();  // 새로고침
+            complete: function () {
+                console.log("complete");
+                location.replace("/main");
             }
-        })
-    };
+        });
+    });
+
+    $('.modal_image_upload')
+        .on("dragover", dragOver)
+        .on("dragleave", dragOver)
+        .on("drop", uploadFiles);
+
+    function dragOver(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (e.type == "dragover") {
+            $(e.target).css({
+                "background-color": "black",
+                "outline-offset": "-20px"
+            });
+        } else {
+            $(e.target).css({
+                "background-color": "white",
+                "outline_offset": "-10px"
+            });
+        }
+    }
+
+    function uploadFiles(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        e.dataTransfer = e.originalEvent.dataTransfer;
+        files = e.target.files || e.dataTransfer.files;
+        console.log("파일이 올라갔습니다." + files[0].name);
+        if (files.length > 1) {
+            alert('하나만 올리세요');
+            return;
+        }
+        if (files[0].type.match(/image.*/)) {
+
+            $('#modal_add_feed').css({
+                display: 'none'
+            });
+            $('#modal_add_feed_content').css({
+                display: 'flex'
+            });
+
+            $('.modal_image_upload_content').css({
+                "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+                "outline": "none",
+                "background-size": "100%",
+                "background-repeat": "no-repeat",
+                "background-position": "center"
+            });
+        } else {
+            alert('이미지가 아닙니다');
+            return;
+        }
+    }
 
 </script>
 
